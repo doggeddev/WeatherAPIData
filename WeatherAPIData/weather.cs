@@ -21,7 +21,7 @@ using WeatherAPI.Library;
 namespace WeatherAPIData
 
 {
-    public class getWeather : IHttpHandler
+    public class getWeather : IHttpHandler //Using this interface to handle requests
     {
         //List holds information that will be serialized and transmitted
 
@@ -47,6 +47,7 @@ namespace WeatherAPIData
 
                         string home = context.Request.Params.Get("home");
                         string work = context.Request.Params.Get("work");
+                        string zip = context.Request.Params.Get("zip");
 
                         if (home != null && home != work)
                         {
@@ -55,7 +56,10 @@ namespace WeatherAPIData
 
                         //already checked equality of values, if they are the same,
                         //this will take care of both home and work
-
+                        if (zip != null)
+                        {
+                            getWeatherWithZip(zip, "zip", listOfDataForHTTPResponse);
+                        }
                         if (work != null)
                         {
                             getWeatherWithLatAndLong(work, "work", listOfDataForHTTPResponse);
@@ -73,6 +77,14 @@ namespace WeatherAPIData
                 HttpContext.Current.Response.ContentType = "application/json";
                 HttpContext.Current.Response.Write(JsonConvert.SerializeObject(failureObject));
             }
+        }
+
+        private static void getWeatherWithZip(string zip, string label, List<dynamic> listOfDataForHTTPResponse)
+        {
+            int zipcode = int.Parse(zip);
+            WeatherRetriever.setZip(zipcode);
+            string data = WeatherRetriever.getWeatherTempAndDescripton();
+            buildListOfWeatherInfo(label, data, listOfDataForHTTPResponse);
         }
 
         private static void sendResponse(List<dynamic> listOfDataForHTTPResponse)
@@ -99,7 +111,6 @@ namespace WeatherAPIData
 
             WeatherRetriever.setCoordinates(lat, lon);
             string data = WeatherRetriever.getWeatherTempAndDescripton();
-
             buildListOfWeatherInfo(label, data, listOfDataForHTTPResponse);
 
         }
