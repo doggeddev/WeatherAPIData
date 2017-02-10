@@ -1,14 +1,13 @@
 ﻿/*
  * Created by Richard Drexel
- * 
+ *
  * Returns JSON indicating current weather conditions for both home and work, or one location.
  * If home and work have identical values, only a single location is returned labeled "work"
- * 
- * 
+ *
+ *
  * To call the api issue a GET request: /weather?home=xx.xxx,yy.yyyy&work=xx.xxx,yy.yyyy
  * Where xx.xxx and yy.yyy are latitude and longitude respectively
- *  
-  
+ *
  */
 
 using Newtonsoft.Json;
@@ -21,7 +20,7 @@ using WeatherAPI.Library;
 namespace WeatherAPIData
 
 {
-    public class getWeather : IHttpHandler //Using this interface to handle requests
+    public class getWeather : IHttpHandler //Using this interface to handle requests, no need for session state
     {
         //List holds information that will be serialized and transmitted
 
@@ -79,13 +78,6 @@ namespace WeatherAPIData
             }
         }
 
-        private static void getWeatherWithZip(string zip, string label, List<dynamic> listOfDataForHTTPResponse)
-        {
-            int zipcode = int.Parse(zip);
-            WeatherRetriever.setZip(zipcode);
-            string data = WeatherRetriever.getWeatherTempAndDescripton();
-            buildListOfWeatherInfo(label, data, listOfDataForHTTPResponse);
-        }
 
         private static void sendResponse(List<dynamic> listOfDataForHTTPResponse)
         {
@@ -97,9 +89,16 @@ namespace WeatherAPIData
         private static dynamic getDataFromJSONString(string jsonData)
         {
             //Convert into an object that can be parsed and data retrieved
-
             dynamic data = JsonConvert.DeserializeObject(jsonData);
             return data;
+        }
+
+        private static void getWeatherWithZip(string zip, string label, List<dynamic> listOfDataForHTTPResponse)
+        {
+            int zipcode = int.Parse(zip);
+            WeatherRetriever.setZip(zipcode);
+            string data = WeatherRetriever.getWeatherTempAndDescripton();
+            buildListOfWeatherInfo(label, data, listOfDataForHTTPResponse);
         }
 
         private static void getWeatherWithLatAndLong(string locationData, string label, List<dynamic> listOfDataForHTTPResponse)
@@ -126,7 +125,6 @@ namespace WeatherAPIData
             string temp = dynData["main"]["temp"];
 
             dynamic dynWeatherDataObject = new ExpandoObject();
-
             dynamic weatherData = new ExpandoObject();
             dynamic weatherLocation = new ExpandoObject();
 
